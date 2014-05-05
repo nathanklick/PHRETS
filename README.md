@@ -1,5 +1,5 @@
-[![Latest Stable Version](https://poser.pugx.org/troydavisson/PHRETS/v/stable.png)](https://packagist.org/packages/troydavisson/PHRETS)
-[![Total Downloads](https://poser.pugx.org/troydavisson/PHRETS/downloads.png)](https://packagist.org/packages/troydavisson/PHRETS)
+[![Latest Stable Version](https://poser.pugx.org/troydavisson/PHRETS/v/stable.png)](https://packagist.org/packages/nathanklick/PHRETS)
+[![Total Downloads](https://poser.pugx.org/troydavisson/PHRETS/downloads.png)](https://packagist.org/packages/nathanklick/PHRETS)
 
 
 # PHRETS
@@ -21,12 +21,21 @@ PHRETS handles the following aspects of RETS communication for you:
 * HTTP Header management
 * Authentication
 * Session/Cookie management
+* POST Support for Searches
+
+## POST Support for Searches
+
+Example:
+	$rets = new phRETS;
+	
+	$options = array("UsePost" => 1);
+	$results = $rets->Search("PROPERTY", "RES", "(LISTSTATUS=|ACT)", $options);
 
 
 ## Download
 
-**Install via Composer** - Add [troydavisson/phrets](https://packagist.org/packages/troydavisson/phrets) to your `composer.json` file, run `composer update` and you're set.  
-**Manual Download** - The source code for PHRETS is available on [GitHub](http://github.com/troydavisson/PHRETS)
+**Install via Composer** - Add [nathanklick/phrets](https://packagist.org/packages/nathanklick/phrets) to your `composer.json` file, run `composer update` and you're set.  
+**Manual Download** - The source code for PHRETS is available on [GitHub](http://github.com/nathanklick/PHRETS)
 
 
 ## Contribute
