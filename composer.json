@@ -10,7 +10,13 @@
             "email": "troy.davisson@gmail.com",
             "homepage": "http://troda.com",
             "role": "Developer"
-        }
+        },
+		{
+			"name": "Nathan Klick",
+            "email": "nathanklick@yahoo.com",
+            "homepage": "",
+            "role": "Developer"
+		}
     ],
     "require": {
         "php": ">=5.2.0"
