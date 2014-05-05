@@ -553,6 +553,8 @@ class phRETS {
 			$search_arguments['RestrictedIndicator'] = $optional_params['RestrictedIndicator'];
 		}
 
+		$usePost = (!empty($optional_params['UsePost']) && $optional_params['UsePost'] ===1) ? true : false;
+		
 		$search_arguments['StandardNames'] = empty($optional_params['StandardNames']) ? 0 : $optional_params['StandardNames'];
 
 		$continue_searching = true; // Keep searching if MAX ROWS is reached and offset_support is true
@@ -570,8 +572,13 @@ class phRETS {
 				return false;
 			}
 
+			$result = null;
 			// make request
-			$result = $this->RETSRequest($this->capability_url['Search'], $search_arguments);
+			if ($usePost) {
+				$result = $this->RETSRequestPost($this->capability_url['Search'], $search_arguments);
+			} else {
+				$result = $this->RETSRequest($this->capability_url['Search'], $search_arguments);
+			}
 			if (!$result) {
 				return false;
 			}
@@ -1655,6 +1662,110 @@ class phRETS {
 	}
 
 
+	public function RETSRequestPost($action, $parameters = "") {
+		$this->reset_error_info();
+
+		$this->last_request = array();
+		$this->last_response_headers = array();
+		$this->last_response_headers_raw = "";
+		$this->last_remembered_header = "";
+
+		// exposed raw RETS request function.  used internally and externally
+
+		if (empty($action)) {
+			die("RETSRequest called but Action passed has no value.  Failed login?\n");
+		}
+
+		$parse_results = parse_url($action, PHP_URL_HOST);
+		if (empty($parse_results)) {
+			// login transaction gave a relative path for this action
+			$request_url = $this->server_protocol.'://'.$this->server_hostname.':'.$this->server_port.''.$action;
+		}
+		else {
+			// login transaction gave an absolute path for this action
+			$request_url = $action;
+		}
+
+		// build query string from arguments
+		$request_arguments = "";
+		if (is_array($parameters)) {
+			$request_arguments = http_build_query($parameters, '', '&');
+		}
+
+		// build entire URL if needed
+		/*
+		if (!empty($request_arguments)) {
+			$request_url = $request_url .'?'. $request_arguments;
+		}
+		*/
+
+		// build headers to pass in cURL
+		$request_headers = "";
+		if (is_array($this->static_headers)) {
+			foreach ($this->static_headers as $key => $value) {
+				$request_headers .= "{$key}: {$value}\r\n";
+			}
+		}
+
+		if ($this->ua_auth == true) {
+			$session_id_to_calculate_with = "";
+
+			// calculate RETS-UA-Authorization header
+			$ua_a1 = md5($this->static_headers['User-Agent'] .':'. $this->ua_pwd);
+			$session_id_to_calculate_with = ($this->use_interealty_ua_auth == true) ? "" : $this->session_id;
+			$ua_dig_resp = md5(trim($ua_a1) .':'. trim($this->request_id) .':'. trim($session_id_to_calculate_with) .':'. trim($this->static_headers['RETS-Version']));
+			$request_headers .= "RETS-UA-Authorization: Digest {$ua_dig_resp}\r\n";
+		}
+
+		$this->last_request_url = $request_url;
+		curl_setopt($this->ch, CURLOPT_URL, $request_url);
+		curl_setopt($this->ch, CURLOPT_POSTFIELDS, $request_arguments);
+		curl_setopt($this->ch, CURLOPT_POST, true);
+		curl_setopt($this->ch, CURLOPT_HTTPHEADER, array(trim($request_headers)));
+		// do it
+		$response_body = curl_exec($this->ch);
+		$response_code = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
+
+		if ($this->debug_mode == true) {
+			fwrite($this->debug_log, $response_body ."\n");
+		}
+
+		if ($this->catch_last_response == true) {
+			$this->last_server_response = $this->last_response_headers_raw . $response_body;
+		}
+
+		if (isset($this->last_response_headers['WWW-Authenticate'])) {
+			if (strpos($this->last_response_headers['WWW-Authenticate'], 'Basic') !== false) {
+				$this->auth_support_basic = true;
+			}
+			if (strpos($this->last_response_headers['WWW-Authenticate'], 'Digest') !== false) {
+				$this->auth_support_digest = true;
+			}
+		}
+
+		if (isset($this->last_response_headers['RETS-Version'])) {
+			$this->server_version = $this->last_response_headers['RETS-Version'];
+		}
+
+		if (isset($this->last_response_headers['Server'])) {
+			$this->server_software = $this->last_response_headers['Server'];
+		}
+
+		if (isset($this->last_response_headers['Set-Cookie'])) {
+			if (preg_match('/RETS-Session-ID\=(.*?)(\;|\s+|$)/', $this->last_response_headers['Set-Cookie'], $matches)) {
+				$this->session_id = $matches[1];
+			}
+		}
+
+		if ($response_code != 200) {
+			$this->set_error_info("http", $response_code, $response_body);
+			return false;
+		}
+
+		// return raw headers and body
+		return array($this->last_response_headers_raw, $response_body);
+	}
+	
 	private function read_custom_curl_headers($handle, $call_string) {
 		$this->last_response_headers_raw .= $call_string;
 		$header = null;

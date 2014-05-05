@@ -1,9 +1,9 @@
 {
-    "name": "troydavisson/phrets",
+    "name": "nathanklick/phrets",
     "type": "library",
     "description": "RETS library in PHP",
     "keywords": ["rets", "mls"],
-    "homepage": "http://github.com/troydavisson/PHRETS",
+    "homepage": "http://github.com/nathanklick/PHRETS",
     "authors": [
         {
             "name": "Troy Davisson",
