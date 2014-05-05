@@ -1,6 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/troydavisson/PHRETS/v/stable.png)](https://packagist.org/packages/nathanklick/PHRETS)
-[![Total Downloads](https://poser.pugx.org/troydavisson/PHRETS/downloads.png)](https://packagist.org/packages/nathanklick/PHRETS)
-
+[![Latest Stable Version](https://poser.pugx.org/nathanklick/phrets/v/stable.png)](https://packagist.org/packages/nathanklick/phrets) [![Total Downloads](https://poser.pugx.org/nathanklick/phrets/downloads.png)](https://packagist.org/packages/nathanklick/phrets) [![Latest Unstable Version](https://poser.pugx.org/nathanklick/phrets/v/unstable.png)](https://packagist.org/packages/nathanklick/phrets) [![License](https://poser.pugx.org/nathanklick/phrets/license.png)](https://packagist.org/packages/nathanklick/phrets)
 
 # PHRETS
 
