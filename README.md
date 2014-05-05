@@ -26,8 +26,8 @@ PHRETS handles the following aspects of RETS communication for you:
 ## POST Support for Searches
 
 Example:
-	$rets = new phRETS;
 	
+	$rets = new phRETS;
 	$options = array("UsePost" => 1);
 	$results = $rets->Search("PROPERTY", "RES", "(LISTSTATUS=|ACT)", $options);
 
