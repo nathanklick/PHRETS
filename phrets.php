@@ -473,10 +473,10 @@ class phRETS {
 					// assign each value to it's name retrieved in the COLUMNS earlier
 					$this_row[$name] = $field_data[$key];
 				}
-			}
-			else {
+			} else {
 				$this->FreeResult($pointer_id);
 			}
+
 		}
 
 		return $this_row;
@@ -533,7 +533,7 @@ class phRETS {
 		}
 
 		// setup additional, optional request arguments
-        $search_arguments['Count'] = (!array_key_exists('Count', $optional_params)) ? 1 : $optional_params['Count'];
+		$search_arguments['Count'] = (!array_key_exists('Count', $optional_params)) ? 1 : $optional_params['Count'];
 		$search_arguments['Format'] = empty($optional_params['Format']) ? "COMPACT-DECODED" : $optional_params['Format'];
 		$search_arguments['Limit'] = empty($optional_params['Limit']) ? 99999999 : $optional_params['Limit'];
 
@@ -552,7 +552,7 @@ class phRETS {
 		if (!empty($optional_params['RestrictedIndicator'])) {
 			$search_arguments['RestrictedIndicator'] = $optional_params['RestrictedIndicator'];
 		}
-
+		
 		$usePost = (!empty($optional_params['UsePost']) && $optional_params['UsePost'] ===1) ? true : false;
 		
 		$search_arguments['StandardNames'] = empty($optional_params['StandardNames']) ? 0 : $optional_params['StandardNames'];
@@ -572,13 +572,15 @@ class phRETS {
 				return false;
 			}
 
-			$result = null;
 			// make request
+			$result = null;
+		
 			if ($usePost) {
 				$result = $this->RETSRequestPost($this->capability_url['Search'], $search_arguments);
 			} else {
 				$result = $this->RETSRequest($this->capability_url['Search'], $search_arguments);
 			}
+
 			if (!$result) {
 				return false;
 			}
@@ -1276,8 +1278,6 @@ class phRETS {
 		$system_id = "";
 		$system_description = "";
 		$system_comments = "";
-		$system_version = "";
-        $timezone_offset = "";
 
 		if ($this->is_server_version("1_5_or_below")) {
 			if (isset($xml->METADATA->{'METADATA-SYSTEM'}->System->SystemID)) {
@@ -1286,6 +1286,7 @@ class phRETS {
 			if (isset($xml->METADATA->{'METADATA-SYSTEM'}->System->SystemDescription)) {
 				$system_description = "{$xml->METADATA->{'METADATA-SYSTEM'}->System->SystemDescription}";
 			}
+			$timezone_offset = "";
 		}
 		else {
 			if (isset($xml->METADATA->{'METADATA-SYSTEM'}->SYSTEM->attributes()->SystemID)) {
@@ -1302,16 +1303,12 @@ class phRETS {
 		if (isset($xml->METADATA->{'METADATA-SYSTEM'}->SYSTEM->Comments)) {
 			$system_comments = "{$xml->METADATA->{'METADATA-SYSTEM'}->SYSTEM->Comments}";
 		}
-		if (isset($xml->METADATA->{'METADATA-SYSTEM'}->attributes()->Version)) {
-			$system_version = (string) $xml->METADATA->{'METADATA-SYSTEM'}->attributes()->Version;
-		}
 
 		return array(
 				'SystemID' => $system_id,
 				'SystemDescription' => $system_description,
 				'TimeZoneOffset' => $timezone_offset,
-				'Comments' => $system_comments,
-				'Version' => $system_version
+				'Comments' => $system_comments
 				);
 	}
 
@@ -1542,11 +1539,7 @@ class phRETS {
 
 		if (!empty($data)) {
 			// parse XML function.  ability to replace SimpleXML with something later fairly easily
-			if (defined('LIBXML_PARSEHUGE')) {
-				$xml = @simplexml_load_string($data, 'SimpleXMLElement', LIBXML_PARSEHUGE);
-			} else {
-				$xml = @simplexml_load_string($data);
-			}
+			$xml = @simplexml_load_string($data);
 			if (!is_object($xml)) {
 				$this->set_error_info("xml", -1, "XML parsing error: {$data}");
 				return false;
@@ -1563,7 +1556,6 @@ class phRETS {
 	public function RETSRequest($action, $parameters = "") {
 		$this->reset_error_info();
 
-		$this->last_request = array();
 		$this->last_response_headers = array();
 		$this->last_response_headers_raw = "";
 		$this->last_remembered_header = "";
@@ -1587,7 +1579,7 @@ class phRETS {
 		// build query string from arguments
 		$request_arguments = "";
 		if (is_array($parameters)) {
-			$request_arguments = http_build_query($parameters, '', '&');
+			$request_arguments = http_build_query($parameters);
 		}
 
 		// build entire URL if needed
@@ -1660,7 +1652,6 @@ class phRETS {
 		// return raw headers and body
 		return array($this->last_response_headers_raw, $response_body);
 	}
-
 
 	public function RETSRequestPost($action, $parameters = "") {
 		$this->reset_error_info();
@@ -1765,7 +1756,7 @@ class phRETS {
 		// return raw headers and body
 		return array($this->last_response_headers_raw, $response_body);
 	}
-	
+
 	private function read_custom_curl_headers($handle, $call_string) {
 		$this->last_response_headers_raw .= $call_string;
 		$header = null;
