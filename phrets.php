@@ -937,7 +937,7 @@ class phRETS {
 		$this_table = array();
 
 		// parse XML into a nice array
-		if ($xml->METADATA) {
+		if ($xml->METADATA && isset($xml->METADATA['METADATA-TABLE']) && !is_null($xml->METADATA->{'METADATA-TABLE'})) {
 			foreach ($xml->METADATA->{'METADATA-TABLE'}->Field as $key) {
 				$this_table[] = array(
 						'SystemName' => "{$key->SystemName}",
